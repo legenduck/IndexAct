@@ -1,0 +1,86 @@
+#!/bin/sh
+# Apache Maven Wrapper startup script, only-script distribution type.
+# Wrapper implementation: Apache Maven Wrapper 3.3.4 (Apache-2.0).
+set -eu
+
+die() {
+  printf '%s\n' "$1" >&2
+  exit 1
+}
+
+trim() {
+  printf '%s' "$1" | tr -d '[:space:]'
+}
+
+hash_string() {
+  wrapper_string=${1:-}
+  wrapper_hash=0
+  while [ -n "$wrapper_string" ]; do
+    wrapper_char=${wrapper_string%"${wrapper_string#?}"}
+    wrapper_hash=$(((wrapper_hash * 31 + $(LC_CTYPE=C printf %d "'$wrapper_char")) % 4294967296))
+    wrapper_string=${wrapper_string#?}
+  done
+  printf '%x\n' "$wrapper_hash"
+}
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PROPERTIES_FILE=$SCRIPT_DIR/.mvn/wrapper/maven-wrapper.properties
+
+distributionUrl=
+distributionSha256Sum=
+while IFS='=' read -r key value; do
+  case "$key" in
+    distributionUrl) distributionUrl=$(trim "$value") ;;
+    distributionSha256Sum) distributionSha256Sum=$(trim "$value") ;;
+  esac
+done < "$PROPERTIES_FILE"
+
+[ -n "$distributionUrl" ] || die "cannot read distributionUrl from $PROPERTIES_FILE"
+[ -n "$distributionSha256Sum" ] || die "cannot read distributionSha256Sum from $PROPERTIES_FILE"
+
+distributionName=${distributionUrl##*/}
+distributionHome=${distributionName%.zip}
+distributionHome=${distributionHome%-bin}
+MAVEN_USER_HOME=${MAVEN_USER_HOME:-"${HOME}/.m2"}
+MAVEN_HOME=$MAVEN_USER_HOME/wrapper/dists/$distributionHome/$(hash_string "$distributionUrl")
+
+if [ ! -x "$MAVEN_HOME/bin/mvn" ]; then
+  if command -v unzip >/dev/null 2>&1; then
+    extract_archive() { unzip -q "$1" -d "$2"; }
+  elif command -v bsdtar >/dev/null 2>&1; then
+    extract_archive() { bsdtar -xf "$1" -C "$2"; }
+  else
+    die "unzip or bsdtar is required to install the pinned Maven distribution"
+  fi
+  wrapper_tmp=$(mktemp -d) || die "cannot create temporary directory"
+  cleanup() { rm -rf -- "$wrapper_tmp"; }
+  trap cleanup EXIT HUP INT TERM
+  archive=$wrapper_tmp/$distributionName
+
+  if command -v curl >/dev/null 2>&1; then
+    curl --fail --location --proto '=https' --tlsv1.2 --output "$archive" "$distributionUrl"
+  elif command -v wget >/dev/null 2>&1; then
+    wget --https-only --output-document="$archive" "$distributionUrl"
+  else
+    die "curl or wget is required to install the pinned Maven distribution"
+  fi
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf '%s  %s\n' "$distributionSha256Sum" "$archive" | sha256sum --check --status -
+  elif command -v shasum >/dev/null 2>&1; then
+    printf '%s  %s\n' "$distributionSha256Sum" "$archive" | shasum -a 256 --check --status
+  else
+    die "sha256sum or shasum is required to verify the Maven distribution"
+  fi || die "Maven distribution SHA-256 verification failed"
+
+  extract_archive "$archive" "$wrapper_tmp"
+  [ -x "$wrapper_tmp/$distributionHome/bin/mvn" ] || die "Maven archive has an unexpected layout"
+  mkdir -p -- "${MAVEN_HOME%/*}"
+  mv -- "$wrapper_tmp/$distributionHome" "$MAVEN_HOME" 2>/dev/null || [ -x "$MAVEN_HOME/bin/mvn" ] || die "cannot install Maven"
+  trap - EXIT HUP INT TERM
+  cleanup
+fi
+
+exec "$MAVEN_HOME/bin/mvn" \
+  -Dmaven.repo.local="$MAVEN_USER_HOME/repository" \
+  -f "$SCRIPT_DIR/pom.xml" "$@"

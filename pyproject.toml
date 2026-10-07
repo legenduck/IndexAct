@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "indexact"
+version = "0.1.0"
+description = "IndexAct corpus interface and experiment evaluation"
+requires-python = ">=3.11"
+dependencies = ["PyYAML==6.0.3"]
+
+[project.optional-dependencies]
+data = ["huggingface-hub==1.9.0", "pyarrow==23.0.1"]
+evaluation = ["tiktoken==0.14.0"]
+
+[tool.setuptools.packages.find]
+include = ["indexact.interface*", "indexact", "evaluation*"]
+namespaces = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

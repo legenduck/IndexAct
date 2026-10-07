@@ -1,0 +1,16 @@
+service:
+  endpoint: http://127.0.0.1:8765/
+  snapshot_id: snap-0000000000000000000000000000000000000000000000000000000000000000
+  request_timeout_seconds: 30
+runtime:
+  prompt: ../prompts/system.md
+  prompt_version: indexact
+  max_turns: 300
+  max_tool_calls_per_turn: 16
+  max_input_tokens: null
+  max_total_output_tokens: null
+  max_wall_clock_seconds: null
+retry:
+  max_retries: 1
+  initial_retry_delay_seconds: 0.25
+  max_retry_delay_seconds: 2

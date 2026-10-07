@@ -1,0 +1,11 @@
+{
+  "model": "openai/gpt-5.4-nano",
+  "thinking": "high",
+  "interface_config_path": "interface.yaml",
+  "judge": {
+    "model": "gpt-5.4-nano",
+    "reasoning_effort": "low",
+    "max_completion_tokens": 4096,
+    "request_timeout_seconds": 180
+  }
+}

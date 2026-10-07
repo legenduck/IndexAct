@@ -1,0 +1,28 @@
+{
+  "name": "indexact",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "run": "tsx src/run.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "config": {
+    "piRuntime": {
+      "repository": "https://github.com/badlogic/pi-mono.git",
+      "revision": "1a6a58eb05f7256ecf51cce6c2cae2f9e464d712",
+      "package_version": "0.65.0",
+      "checkout_directory": ".deps/pi-mono"
+    }
+  },
+  "dependencies": {
+    "@mariozechner/pi-coding-agent": "file:../.deps/pi-mono/packages/coding-agent",
+    "@mariozechner/pi-ai": "file:../.deps/pi-mono/packages/ai",
+    "@mariozechner/pi-agent-core": "file:../.deps/pi-mono/packages/agent",
+    "@mariozechner/pi-tui": "file:../.deps/pi-mono/packages/tui",
+    "@sinclair/typebox": "0.34.41",
+    "tsx": "4.20.6"
+  },
+  "devDependencies": {"@types/node": "24.5.2", "typescript": "5.9.2"}
+}

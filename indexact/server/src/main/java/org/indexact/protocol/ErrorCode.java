@@ -1,0 +1,18 @@
+package org.indexact.protocol;
+
+/** Complete symbolic IndexAct failure registry. */
+public enum ErrorCode {
+    MALFORMED_REQUEST,
+    SESSION_NOT_FOUND,
+    SNAPSHOT_NOT_FOUND,
+    SNAPSHOT_INCOMPATIBLE,
+    UNSUPPORTED_PROTOCOL_VERSION,
+    LINEAGE_NOT_FOUND,
+    INVALID_STATE_REF,
+    DOCUMENT_NOT_FOUND,
+    MALFORMED_OPERATION,
+    TYPE_MISMATCH,
+    INVALID_ARGUMENT,
+    RESOURCE_LIMIT_EXCEEDED,
+    INTERNAL_ERROR
+}
